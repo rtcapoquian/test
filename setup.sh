@@ -5,9 +5,11 @@ DB_ENDPOINT=$1
 DB_NAME=$2
 DB_USERNAME=$3
 DB_PASSWORD=$4
+APP_PORT=${5:-3001}
 
 echo "Starting Todo App setup..."
 echo "Database endpoint: $DB_ENDPOINT"
+echo "Application port: $APP_PORT"
 
 # Install Node.js 18
 curl -fsSL https://rpm.nodesource.com/setup_18.x | sudo bash -
@@ -58,7 +60,11 @@ const { v4: uuidv4 } = require('uuid');
 const path = require('path');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || $APP_PORT;
+
+// Additional ports for load balancing (if needed)
+const PORTS = [3001, 3002, 3003, 3004, 3005];
+const CURRENT_PORT = PORT;
 
 // Middleware
 app.use(helmet());
@@ -267,6 +273,8 @@ app.get('*', (req, res) => {
             <h1>📝 Todo App</h1>
             <p>AWS Auto Scaling Web Application</p>
             <p>Instance: \${process.env.INSTANCE_ID || 'unknown'}</p>
+            <p>Port: \${PORT}</p>
+            <p>Available Ports: \${PORTS.join(', ')}</p>
         </div>
         
         <div class="todo-form">
